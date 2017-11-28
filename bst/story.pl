@@ -1,11 +1,17 @@
 use strict;
-my @tree;
+my $tree;
 
 for my $n (split ',', config()->{list}){
   print "add $n ... \n";
-  add_n($n, $tree[0] );
+  add_n($n, $tree );
 }
 
+
+traverse_t ( $tree->{left}, sub { print shift(), "\n" } ) if $tree->{left};
+
+print $tree->{key}, "\n";
+
+traverse_t ( $tree->{right}, sub { print shift(), "\n" } ) if $tree->{right};
 
 sub add_n {
 
@@ -13,7 +19,7 @@ sub add_n {
   my $root = shift;
 
   if (! defined $root ) {
-    push @tree, { key => $n };
+    $tree = { key => $n };
   } elsif ( $n >= $root->{key} && $root->{right} ){
     add_n($n, $root->{right})
   } elsif ( $n < $root->{key} && $root->{left} ) {
@@ -27,4 +33,23 @@ sub add_n {
 
 use Data::Dumper;
 
-print Dumper \@tree;
+print Dumper $tree;
+
+sub traverse_t {
+
+  my $root = shift;
+  my $f = shift;
+
+  if ( $root->{left} ){
+    traverse_t ($root->{left}, $f);
+    $f->( $root->{key} );
+    traverse_t ($root->{right}, $f) if $root->{right};
+  } else {
+    $f->( $root->{key} );
+    traverse_t ($root->{right}, $f) if $root->{right};
+  }
+}
+
+
+
+
